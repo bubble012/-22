@@ -1,7 +1,4 @@
-# 인공지능 기초 제출
-**굵게**  *기울임*  ~~취소선~~
-
-`코드`
+[index.html_코치미_인기초 수행평가.html](https://github.com/user-attachments/files/35257222/index.html_._.html)
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -3516,8 +3513,3 @@ function showToast(message, type = 'info') {
 </script>
 </body>
 </html>
-
-
-[링크]([Uploading 코치미_인기초 수행평가.html…]())
-![이미지](이미지주소.png)
-> 인용문
