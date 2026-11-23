@@ -1,6 +1,4 @@
-from pathlib import Path
-
-content = """# 코치미 (COACH ME)
+##코치미 (COACH ME)
 
 > 비염을 바꾸는 작은 습관의 변화  
 > 일상생활 습관과 알레르기비염 증상 기록을 비교해 반복적인 패턴을 살펴보는 관찰 중심 웹 서비스입니다.
