@@ -61,8 +61,4 @@ content = """# 코치미 (COACH ME)
 ├── index.html   # 웹 애플리케이션 본체
 └── README.md    # 프로젝트 설명 및 실행·배포 안내
 ```
-"""
 
-path = Path("/mnt/data/README.md")
-path.write_text(content, encoding="utf-8")
-print(f"README.md 생성 완료: {path}")
