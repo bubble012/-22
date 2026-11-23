@@ -1,0 +1,3514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>코치미 (COACH ME) - 개인 맞춤형 알레르기비염 생활 습관 관찰 AI</title>
+  <meta name="description" content="비염을 바꾸는 작은 습관의 변화. 일상 생활 습관과 비염 증상 기록을 비교 분석하여 반복적인 패턴을 탐색하고 실천 가능한 관찰 방향을 제안하는 웹 서비스">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <style>
+/* ==========================================================================
+   코치미 (COACH ME) Modern Healthcare Styling
+   Palette: Cobalt Blue (#2563EB) & Fresh Teal (#0D9488) on Clean Slate (#F8FAFC)
+   ========================================================================== */
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  --primary-border: #bfdbfe;
+  
+  --teal: #0d9488;
+  --teal-hover: #0f766e;
+  --teal-light: #f0fdfa;
+  --teal-border: #99f6e4;
+  
+  --indigo: #4f46e5;
+  --indigo-light: #eef2ff;
+  
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  
+  --border-color: #e2e8f0;
+  --border-focus: #3b82f6;
+  
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+/* Header */
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-icon {
+  font-size: 1.75rem;
+  background: var(--teal-light);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--teal-border);
+}
+
+.logo-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.logo-sub {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.logo-tagline {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Nav Tabs */
+.nav-tabs {
+  display: flex;
+  gap: 0.35rem;
+  background: var(--bg-subtle);
+  padding: 4px;
+  border-radius: var(--radius-md);
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.nav-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.nav-tab.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Global Notice Bar */
+.disclaimer-bar {
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.disclaimer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Card Common */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  margin-bottom: 1.25rem;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.section-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  font-size: 0.925rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Tabs Display */
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= TAB 1: HOME STYLES ================= */
+.hero-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 60%, #f0fdfa 100%);
+  border: 1px solid var(--primary-border);
+  padding: 2.5rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--primary-border);
+}
+
+.hero-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+
+.highlight-blue {
+  color: var(--primary);
+  background: linear-gradient(120deg, rgba(37, 99, 235, 0.1) 0%, rgba(13, 148, 136, 0.15) 100%);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hero-graphic {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 200px;
+}
+
+.stat-card.mini {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+  font-size: 1.75rem;
+}
+
+.stat-num {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.1;
+}
+
+.stat-name {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.feature-card {
+  margin-bottom: 0;
+  padding: 1.75rem 1.5rem;
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.bg-blue { background: var(--primary-light); }
+.bg-teal { background: var(--teal-light); }
+.bg-indigo { background: var(--indigo-light); }
+
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* Recent Preview List */
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.15rem;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  transition: var(--transition);
+}
+
+.recent-item:hover {
+  background: #f1f5f9;
+}
+
+.recent-date {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.recent-lifestyle-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tag-pill {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ================= TAB 2: RECORD INPUT STYLES ================= */
+.record-header {
+  margin-bottom: 1.25rem;
+}
+
+.date-selector-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.input-date {
+  padding: 0.5rem 0.85rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: #ffffff;
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-date:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.record-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-section-card {
+  margin-bottom: 0;
+}
+
+.section-heading {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.heading-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.35rem;
+}
+
+.badge-blue { background: var(--primary-light); color: var(--primary); }
+.badge-teal { background: var(--teal-light); color: var(--teal); }
+.badge-purple { background: #f3e8ff; color: #7e22ce; }
+.badge-gray { background: #f1f5f9; color: #475569; }
+
+.heading-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.heading-desc {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.form-group {
+  margin-bottom: 1.35rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.45rem;
+}
+
+.form-value-pill {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.input-range {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 0.35rem;
+}
+
+/* Segmented Control */
+.segmented-control {
+  display: flex;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.segment-btn {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+  text-align: center;
+}
+
+.segment-btn:hover {
+  color: var(--text-main);
+}
+
+.segment-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+/* Stress Level Selector (0~3) */
+.level-selector-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.level-btn {
+  padding: 0.65rem 0.5rem;
+  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: inherit;
+}
+
+.lvl-num {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.lvl-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.level-btn:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-light);
+}
+
+.level-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.level-btn.active .lvl-num {
+  color: var(--primary);
+}
+
+.level-btn.active .lvl-text {
+  color: var(--primary);
+}
+
+/* Checkbox Cards */
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.check-card {
+  background: var(--bg-subtle);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  transition: var(--transition);
+}
+
+.check-card:hover {
+  background: #f1f5f9;
+  border-color: var(--border-color);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-container input {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: var(--transition);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.checkbox-container input:checked ~ .checkmark::after {
+  content: '✓';
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.check-label-text strong {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-main);
+}
+
+.check-label-text small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.sub-input-box {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.sub-label {
+  display: block;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.input-text, .input-select {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: #ffffff;
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-text:focus, .input-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+/* Symptom Card Styling */
+.symptom-card {
+  background: #fafaf9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.symptom-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.symptom-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.symptom-current-badge {
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
+.symptom-scale-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.symptom-btn {
+  padding: 0.65rem 0.4rem;
+  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: inherit;
+}
+
+.score-num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.score-desc {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.symptom-btn:hover {
+  border-color: var(--teal-border);
+  background: var(--teal-light);
+}
+
+.symptom-btn.active[data-score="0"] {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+.symptom-btn.active[data-score="0"] .score-num,
+.symptom-btn.active[data-score="0"] .score-desc {
+  color: var(--success);
+}
+
+.symptom-btn.active[data-score="1"] {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.symptom-btn.active[data-score="1"] .score-num,
+.symptom-btn.active[data-score="1"] .score-desc {
+  color: #2563eb;
+}
+
+.symptom-btn.active[data-score="2"] {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+}
+.symptom-btn.active[data-score="2"] .score-num,
+.symptom-btn.active[data-score="2"] .score-desc {
+  color: #d97706;
+}
+
+.symptom-btn.active[data-score="3"] {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+.symptom-btn.active[data-score="3"] .score-num,
+.symptom-btn.active[data-score="3"] .score-desc {
+  color: var(--danger);
+}
+
+/* Live Symptom Average Box */
+.avg-preview-box {
+  background: linear-gradient(135deg, #f0fdfa 0%, #eff6ff 100%);
+  border: 1.5px solid var(--teal-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.avg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.avg-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--teal-hover);
+}
+
+.avg-formula {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.avg-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.avg-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--teal-hover);
+  letter-spacing: -0.02em;
+}
+
+.avg-max {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.avg-status-badge {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.badge-green { background: var(--success-bg); color: var(--success); }
+.badge-yellow { background: var(--warning-bg); color: #d97706; }
+.badge-red { background: var(--danger-bg); color: var(--danger); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-secondary {
+  background: var(--teal);
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: var(--teal-hover);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+
+.btn-outline {
+  background: #ffffff;
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  background: var(--bg-subtle);
+  border-color: var(--text-muted);
+}
+
+.btn-outline-danger {
+  background: #ffffff;
+  border-color: #fca5a5;
+  color: var(--danger);
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-lg {
+  padding: 0.85rem 1.6rem;
+  font-size: 1rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* ================= TAB 3: CHARTS & HISTORY ================= */
+.charts-container-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  margin-bottom: 0;
+}
+
+.chart-full {
+  grid-column: 1 / -1;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.chart-wrapper-tall {
+  height: 320px;
+}
+
+.chart-legend-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Data Table */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--bg-subtle);
+  padding: 0.75rem 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.data-table tr:hover {
+  background: #f8fafc;
+}
+
+.table-score-badge {
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  font-size: 0.8rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ================= TAB 4: AI ANALYSIS ================= */
+.ai-header-card {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+  border: 1px solid #e9d5ff;
+}
+
+.ai-badge-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+
+.alert-box {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.alert-warning {
+  background: var(--warning-bg);
+  border: 1.5px solid #fde68a;
+  color: #92400e;
+}
+
+.alert-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.alert-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.alert-desc {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.alert-action {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* AI Insights Grid */
+.ai-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.ai-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.ai-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-border);
+}
+
+.ai-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.ai-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.ai-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ai-card-body {
+  font-size: 0.925rem;
+  color: #334155;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.ai-card-evidence {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  border-left: 3px solid var(--primary);
+}
+
+/* Quests */
+.quests-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1.5px solid var(--teal-border);
+}
+
+.quests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.quest-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.quest-badge {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.quest-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.2rem;
+}
+
+.quest-desc {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.quest-notice {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: rgba(13, 148, 136, 0.08);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+/* ================= TAB 5: ABOUT & PUBLIC DATA ================= */
+.corr-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.corr-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.corr-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.corr-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.text-blue { color: var(--primary); }
+.text-red { color: #dc2626; }
+.text-teal { color: var(--teal); }
+
+.corr-type {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.corr-desc {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.public-chart-controls {
+  margin-bottom: 1rem;
+}
+
+.fallacy-edu-box {
+  display: flex;
+  gap: 1.25rem;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.edu-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+}
+
+.edu-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.4rem;
+}
+
+.edu-text {
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.settings-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.setting-item {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.setting-item.danger-item {
+  border-color: #fca5a5;
+  background: #fff5f5;
+}
+
+.setting-info strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.setting-info p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.project-info-card {
+  background: #f8fafc;
+}
+
+.info-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.info-list {
+  list-style: none;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.info-list li strong {
+  color: var(--text-main);
+}
+
+/* Footer */
+.app-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.footer-notice {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.toast {
+  background: #1e293b;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.25s ease-out;
+}
+
+.toast.success { background: #065f46; border-left: 4px solid var(--success); }
+.toast.info { background: #1e3a8a; border-left: 4px solid var(--primary); }
+.toast.warning { background: #854d0e; border-left: 4px solid var(--warning); }
+.toast.danger { background: #991b1b; border-left: 4px solid var(--danger); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Utilities */
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 992px) {
+  .hero-banner {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-graphic {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .record-grid {
+    grid-template-columns: 1fr;
+  }
+  .charts-container-grid {
+    grid-template-columns: 1fr;
+  }
+  .ai-insights-grid {
+    grid-template-columns: 1fr;
+  }
+  .corr-summary-row {
+    grid-template-columns: 1fr;
+  }
+  .settings-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-container {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+  .nav-tabs {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: space-between;
+  }
+  .nav-tab {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.775rem;
+  }
+  .form-row-2, .form-row-3 {
+    grid-template-columns: 1fr;
+  }
+  .hero-title {
+    font-size: 1.6rem;
+  }
+  .stat-card.mini {
+    flex: 1;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div id="app" class="app-layout">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="logo-area" onclick="navigateTab('home')">
+          <div class="logo-icon">🌿</div>
+          <div class="logo-text">
+            <h1 class="logo-title">코치미 <span class="logo-sub">COACH ME</span></h1>
+            <p class="logo-tagline">비염을 바꾸는 작은 습관의 변화</p>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" id="navTabs">
+          <button class="nav-tab active" data-tab="home" onclick="navigateTab('home')">
+            <span class="tab-icon">🏠</span><span class="tab-label">홈</span>
+          </button>
+          <button class="nav-tab" data-tab="record" onclick="navigateTab('record')">
+            <span class="tab-icon">📝</span><span class="tab-label">기록하기</span>
+          </button>
+          <button class="nav-tab" data-tab="history" onclick="navigateTab('history')">
+            <span class="tab-icon">📊</span><span class="tab-label">나의 기록</span>
+          </button>
+          <button class="nav-tab" data-tab="ai" onclick="navigateTab('ai')">
+            <span class="tab-icon">💡</span><span class="tab-label">AI 패턴 분석</span>
+          </button>
+          <button class="nav-tab" data-tab="about" onclick="navigateTab('about')">
+            <span class="tab-icon">ℹ️</span><span class="tab-label">데이터·안내</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Global Notice Bar (Non-medical Disclaimer) -->
+    <div class="disclaimer-bar">
+      <div class="disclaimer-inner">
+        <span class="badge">안내</span>
+        <span>본 서비스는 의료 진단이나 치료 목적이 아니며, 개인의 생활 습관과 비염 증상 간의 반복적인 동반 패턴을 관찰하도록 돕는 교육·탐구용 서비스입니다.</span>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- ================= TAB 1: HOME ================= -->
+      <section id="tab-home" class="tab-panel active">
+        <!-- Hero Section -->
+        <div class="hero-banner card">
+          <div class="hero-content">
+            <div class="hero-badge">고교 인공지능 기초 탐구 프로젝트</div>
+            <h2 class="hero-title">비염을 바꾸는<br><span class="highlight-blue">작은 습관의 변화</span>, 코치미</h2>
+            <p class="hero-desc">
+              매일의 수면 시간, 스트레스, 외출, 청소 습관과 비염 증상을 함께 기록해 보세요.<br>
+              설명 가능한 규칙 기반 AI가 내 생활 속 반복되는 패턴을 찾아 실천 가능한 관찰 방향을 제안합니다.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" onclick="navigateTab('record')">
+                <span class="btn-icon">✍️</span> 오늘의 기록 시작하기
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="navigateTab('ai')">
+                <span class="btn-icon">🔍</span> AI 분석 결과 보기
+              </button>
+              <button class="btn btn-outline btn-lg" id="btnLoadSampleHome" onclick="loadSampleDataset()">
+                <span class="btn-icon">🧪</span> 시연용 예시 데이터 불러오기
+              </button>
+            </div>
+          </div>
+          <div class="hero-graphic">
+            <div class="stat-card mini">
+              <div class="stat-icon">📈</div>
+              <div class="stat-info">
+                <span class="stat-num" id="homeTotalRecords">0</span>
+                <span class="stat-name">누적 기록 일수</span>
+              </div>
+            </div>
+            <div class="stat-card mini">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-info">
+                <span class="stat-num" id="homeRecentAvg">-</span>
+                <span class="stat-name">최근 평균 증상 점수</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Core Philosophy Cards -->
+        <div class="features-grid">
+          <div class="feature-card card">
+            <div class="feature-icon bg-blue">🔍</div>
+            <h3 class="feature-title">비진단·비치료 관찰 중심</h3>
+            <p class="feature-desc">
+              특정 생활 습관이 비염의 직접적 원인이라고 단정하지 않습니다. 개인에게 나타나는 반복적인 동반 패턴을 스스로 관찰하도록 돕습니다.
+            </p>
+          </div>
+          <div class="feature-card card">
+            <div class="feature-icon bg-teal">⚖️</div>
+            <h3 class="feature-title">상관관계와 인과관계의 분리</h3>
+            <p class="feature-desc">
+              두 요소가 함께 나타난다고 해서 한쪽이 원인인 것은 아닙니다. 질병청 공공데이터와 내 기록의 차이점을 배우고 통계적 오류를 방지합니다.
+            </p>
+          </div>
+          <div class="feature-card card">
+            <div class="feature-icon bg-indigo">💡</div>
+            <h3 class="feature-title">설명 가능한 규칙 기반 AI (XAI)</h3>
+            <p class="feature-desc">
+              이유를 알 수 없는 블랙박스 예측 대신, 비교 대상 일수와 평균 점수 차이 등 명확한 통계적 근거를 바탕으로 설명합니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- Recent Records Preview -->
+        <div class="card recent-preview-card">
+          <div class="card-header flex-between">
+            <div>
+              <h3 class="card-title">최근 기록 현황</h3>
+              <p class="card-subtitle">최근 기록된 생활 습관과 증상 점수 요약</p>
+            </div>
+            <button class="btn btn-sm btn-outline" onclick="navigateTab('history')">전체 기록 보기 &rarr;</button>
+          </div>
+          <div id="homeRecentListContainer">
+            <!-- Dynamic Injection -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: RECORD INPUT ================= -->
+      <section id="tab-record" class="tab-panel">
+        <div class="record-header card">
+          <div class="flex-between flex-wrap">
+            <div>
+              <h2 class="section-title">생활 습관 및 증상 기록</h2>
+              <p class="section-subtitle">오늘 하루의 생활 습관과 비염 증상 정도를 솔직하게 기록해 보세요.</p>
+            </div>
+            <div class="date-selector-wrapper">
+              <label for="recordDate" class="input-label">기록 날짜:</label>
+              <input type="date" id="recordDate" class="input-date">
+            </div>
+          </div>
+        </div>
+
+        <form id="recordForm" onsubmit="handleRecordSubmit(event)">
+          <input type="hidden" id="editingRecordId" value="">
+
+          <div class="record-grid">
+            <!-- Lifestyle Section -->
+            <div class="card form-section-card">
+              <div class="section-heading">
+                <span class="heading-badge badge-blue">생활 습관</span>
+                <h3 class="heading-title">오늘의 일상 습관</h3>
+                <p class="heading-desc">수면, 스트레스 및 주변 환경 요인을 체크해 주세요.</p>
+              </div>
+
+              <!-- 1. Sleep Hours & Regularity -->
+              <div class="form-group">
+                <div class="flex-between">
+                  <label class="form-label" for="sleepHours">수면 시간</label>
+                  <span class="form-value-pill" id="sleepHoursVal">7.0 시간</span>
+                </div>
+                <input type="range" id="sleepHours" class="input-range" min="0" max="15" step="0.5" value="7.0" oninput="updateSleepHoursLabel(this.value)">
+                <div class="range-labels">
+                  <span>0h</span>
+                  <span>6h</span>
+                  <span>8h</span>
+                  <span>12h+</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">수면 규칙성</label>
+                <div class="segmented-control" id="sleepRegularityGroup">
+                  <button type="button" class="segment-btn active" data-val="regular" onclick="setSegmentVal('sleepRegularity', 'regular')">규칙적인 수면</button>
+                  <button type="button" class="segment-btn" data-val="irregular" onclick="setSegmentVal('sleepRegularity', 'irregular')">불규칙한 수면</button>
+                </div>
+                <input type="hidden" id="sleepRegularity" value="regular">
+              </div>
+
+              <!-- 2. Stress Level (0~3) -->
+              <div class="form-group">
+                <label class="form-label">스트레스 수준 (0 ~ 3)</label>
+                <div class="level-selector-row" id="stressGroup">
+                  <button type="button" class="level-btn active" data-val="0" onclick="setLevelVal('stressLevel', 0)">
+                    <span class="lvl-num">0</span>
+                    <span class="lvl-text">거의 없음</span>
+                  </button>
+                  <button type="button" class="level-btn" data-val="1" onclick="setLevelVal('stressLevel', 1)">
+                    <span class="lvl-num">1</span>
+                    <span class="lvl-text">조금 있음</span>
+                  </button>
+                  <button type="button" class="level-btn" data-val="2" onclick="setLevelVal('stressLevel', 2)">
+                    <span class="lvl-num">2</span>
+                    <span class="lvl-text">많이 느낌</span>
+                  </button>
+                  <button type="button" class="level-btn" data-val="3" onclick="setLevelVal('stressLevel', 3)">
+                    <span class="lvl-num">3</span>
+                    <span class="lvl-text">매우 심함</span>
+                  </button>
+                </div>
+                <input type="hidden" id="stressLevel" value="0">
+              </div>
+
+              <!-- 3. Physical Activity & Outdoor -->
+              <div class="form-row-2">
+                <div class="form-group check-card">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="physicalActivity">
+                    <span class="checkmark"></span>
+                    <div class="check-label-text">
+                      <strong>신체활동(운동) 여부</strong>
+                      <small>30분 이상 가벼운 운동이나 체육활동</small>
+                    </div>
+                  </label>
+                </div>
+                <div class="form-group check-card">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="indoorCleaning">
+                    <span class="checkmark"></span>
+                    <div class="check-label-text">
+                      <strong>실내·침실 청소 여부</strong>
+                      <small>침구류 털기, 방 청소기 돌리기 등</small>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 4. Outdoor Activity & Detail -->
+              <div class="form-group check-card">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="outdoorActivity" onchange="toggleOutdoorDetail(this.checked)">
+                  <span class="checkmark"></span>
+                  <div class="check-label-text">
+                    <strong>외출 여부 (야외 활동)</strong>
+                    <small>등하교 외 야외 머무름, 산책 등</small>
+                  </div>
+                </label>
+                <div id="outdoorDetailBox" class="sub-input-box" style="display: none;">
+                  <label for="outdoorDetail" class="sub-label">외출 시간 및 환경 메모 (선택):</label>
+                  <input type="text" id="outdoorDetail" class="input-text" placeholder="예: 공원 1시간 산책, 미세먼지 심한 날 버스 이동 등">
+                </div>
+              </div>
+
+              <!-- 5. Air Quality, Season, Clothing -->
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label class="form-label" for="airQuality">대기질</label>
+                  <select id="airQuality" class="input-select">
+                    <option value="good">좋음 (보통 맑음)</option>
+                    <option value="moderate" selected>보통</option>
+                    <option value="bad">나쁨 (미세먼지/황사)</option>
+                    <option value="very_bad">매우 나쁨</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="season">계절</label>
+                  <select id="season" class="input-select">
+                    <option value="spring">봄 (꽃가루 주의)</option>
+                    <option value="summer">여름 (냉방/습도)</option>
+                    <option value="autumn" selected>가을 (환절기/일교차)</option>
+                    <option value="winter">겨울 (건조/한파)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="clothingMaterial">입은 옷 재질</label>
+                  <select id="clothingMaterial" class="input-select">
+                    <option value="cotton" selected>면 (Cotton)</option>
+                    <option value="wool">털/니트 (Wool)</option>
+                    <option value="fleece">기모/플리스</option>
+                    <option value="synthetic">합성섬유 (폴리)</option>
+                    <option value="other">기타</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Symptoms Section -->
+            <div class="card form-section-card">
+              <div class="section-heading">
+                <span class="heading-badge badge-teal">비염 증상</span>
+                <h3 class="heading-title">오늘의 비염 증상 척도</h3>
+                <p class="heading-desc">
+                  0은 증상이 없음, 3은 사용자가 설정한 척도에서 가장 심한 상태입니다.
+                </p>
+              </div>
+
+              <!-- Symptom 1: Nasal Congestion -->
+              <div class="form-group symptom-card">
+                <div class="symptom-title-row">
+                  <span class="symptom-name">👃 코막힘 정도</span>
+                  <span class="symptom-current-badge" id="badgeCongestion">0점 (증상 없음)</span>
+                </div>
+                <div class="symptom-scale-buttons" id="scaleCongestion">
+                  <button type="button" class="symptom-btn active" data-score="0" onclick="setSymptomScore('nasalCongestion', 0)">
+                    <span class="score-num">0</span>
+                    <span class="score-desc">없음</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="1" onclick="setSymptomScore('nasalCongestion', 1)">
+                    <span class="score-num">1</span>
+                    <span class="score-desc">경미함</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="2" onclick="setSymptomScore('nasalCongestion', 2)">
+                    <span class="score-num">2</span>
+                    <span class="score-desc">보통</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="3" onclick="setSymptomScore('nasalCongestion', 3)">
+                    <span class="score-num">3</span>
+                    <span class="score-desc">심함</span>
+                  </button>
+                </div>
+                <input type="hidden" id="nasalCongestion" value="0">
+              </div>
+
+              <!-- Symptom 2: Sneezing -->
+              <div class="form-group symptom-card">
+                <div class="symptom-title-row">
+                  <span class="symptom-name">🤧 재채기 정도</span>
+                  <span class="symptom-current-badge" id="badgeSneezing">0점 (증상 없음)</span>
+                </div>
+                <div class="symptom-scale-buttons" id="scaleSneezing">
+                  <button type="button" class="symptom-btn active" data-score="0" onclick="setSymptomScore('sneezing', 0)">
+                    <span class="score-num">0</span>
+                    <span class="score-desc">없음</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="1" onclick="setSymptomScore('sneezing', 1)">
+                    <span class="score-num">1</span>
+                    <span class="score-desc">경미함</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="2" onclick="setSymptomScore('sneezing', 2)">
+                    <span class="score-num">2</span>
+                    <span class="score-desc">보통</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="3" onclick="setSymptomScore('sneezing', 3)">
+                    <span class="score-num">3</span>
+                    <span class="score-desc">심함</span>
+                  </button>
+                </div>
+                <input type="hidden" id="sneezing" value="0">
+              </div>
+
+              <!-- Symptom 3: Runny Nose -->
+              <div class="form-group symptom-card">
+                <div class="symptom-title-row">
+                  <span class="symptom-name">💧 콧물 정도</span>
+                  <span class="symptom-current-badge" id="badgeRunnyNose">0점 (증상 없음)</span>
+                </div>
+                <div class="symptom-scale-buttons" id="scaleRunnyNose">
+                  <button type="button" class="symptom-btn active" data-score="0" onclick="setSymptomScore('runnyNose', 0)">
+                    <span class="score-num">0</span>
+                    <span class="score-desc">없음</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="1" onclick="setSymptomScore('runnyNose', 1)">
+                    <span class="score-num">1</span>
+                    <span class="score-desc">경미함</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="2" onclick="setSymptomScore('runnyNose', 2)">
+                    <span class="score-num">2</span>
+                    <span class="score-desc">보통</span>
+                  </button>
+                  <button type="button" class="symptom-btn" data-score="3" onclick="setSymptomScore('runnyNose', 3)">
+                    <span class="score-num">3</span>
+                    <span class="score-desc">심함</span>
+                  </button>
+                </div>
+                <input type="hidden" id="runnyNose" value="0">
+              </div>
+
+              <!-- Live Symptom Average Box -->
+              <div class="avg-preview-box">
+                <div class="avg-header">
+                  <span class="avg-title">계산된 오늘의 증상 평균 점수</span>
+                  <span class="avg-formula">(코막힘 + 재채기 + 콧물) / 3</span>
+                </div>
+                <div class="avg-display">
+                  <span class="avg-value" id="liveAvgScore">0.00</span>
+                  <span class="avg-max">/ 3.00 점</span>
+                  <span class="avg-status-badge badge-green" id="liveAvgBadge">편안함</span>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnSubmitRecord">
+                  <span class="btn-icon">💾</span> 기록 저장하기
+                </button>
+                <button type="button" class="btn btn-secondary btn-block" id="btnCancelEdit" style="display:none;" onclick="cancelEditMode()">
+                  수정 취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= TAB 3: HISTORY & CHARTS ================= -->
+      <section id="tab-history" class="tab-panel">
+        <div class="card history-header">
+          <div class="flex-between flex-wrap">
+            <div>
+              <h2 class="section-title">나의 기록 및 시각화</h2>
+              <p class="section-subtitle">시간 경과에 따른 증상 변화와 생활 습관별 평균 증상 비교 그래프입니다.</p>
+            </div>
+            <div class="history-actions">
+              <button class="btn btn-sm btn-outline" onclick="loadSampleDataset()">
+                <span class="btn-icon">🧪</span> 예시 데이터 불러오기
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="confirmResetAll()">
+                <span class="btn-icon">🗑️</span> 전체 초기화
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-container-grid">
+          <!-- Chart 1: Daily Symptoms Trend -->
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3 class="card-title">📈 날짜별 비염 증상 변화 추이</h3>
+              <p class="card-subtitle">코막힘, 재채기, 콧물 및 평균 증상 점수의 날짜별 변동</p>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartSymptomsTrend"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Daily Sleep Hours -->
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3 class="card-title">🌙 날짜별 수면 시간 변화</h3>
+              <p class="card-subtitle">주중/주말 수면 시간 추이</p>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartSleepTrend"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Habit vs Symptom Comparison -->
+          <div class="card chart-card chart-full">
+            <div class="card-header flex-between flex-wrap">
+              <div>
+                <h3 class="card-title">📊 생활 습관별 평균 증상 점수 비교</h3>
+                <p class="card-subtitle">생활 요인의 실천 여부나 수준에 따른 평균 증상 점수 차이 (수면, 스트레스, 청소, 운동)</p>
+              </div>
+              <div class="chart-legend-note">
+                <span class="dot-indicator"></span> 점수가 낮을수록 증상이 가벼운 상태
+              </div>
+            </div>
+            <div class="chart-wrapper chart-wrapper-tall">
+              <canvas id="chartHabitComparison"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Records Table -->
+        <div class="card table-card">
+          <div class="card-header flex-between flex-wrap">
+            <div>
+              <h3 class="card-title">기록 목록</h3>
+              <p class="card-subtitle">등록된 날짜별 기록을 조회하고 수정하거나 삭제할 수 있습니다.</p>
+            </div>
+            <span class="record-counter" id="recordTableCount">총 0개 기록</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>수면</th>
+                  <th>스트레스</th>
+                  <th>신체활동</th>
+                  <th>실내청소</th>
+                  <th>외출 및 환경</th>
+                  <th>증상 점수 (코/재/콧)</th>
+                  <th>증상 평균</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: AI ANALYSIS ================= -->
+      <section id="tab-ai" class="tab-panel">
+        <div class="card ai-header-card">
+          <div class="ai-badge-row">
+            <span class="badge badge-purple">설명 가능한 인공지능 (XAI)</span>
+            <span class="badge badge-gray" id="aiRecordCountBadge">기록 데이터: 0일</span>
+          </div>
+          <h2 class="section-title">AI 기반 패턴 분석 및 추론</h2>
+          <p class="section-subtitle">
+            사용자가 기록한 데이터 사이의 반복적인 동반 패턴을 설명 가능한 규칙 기반 방식으로 탐색합니다.<br>
+            ※ 특정 습관이 비염을 유발하거나 치료한다고 단정하지 않으며, 실천 가능한 관찰 방향을 제안합니다.
+          </p>
+        </div>
+
+        <!-- Insufficient Data Warning Banner (Hidden when records >= 3) -->
+        <div id="aiInsufficientBanner" class="alert-box alert-warning card" style="display: none;">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-content">
+            <h4 class="alert-title">신뢰도 있는 패턴 분석을 위해 최소 3일 이상의 기록이 필요합니다.</h4>
+            <p class="alert-desc">
+              현재 누적 기록은 <strong id="aiCurrentCountText">0일</strong>입니다. 데이터가 충분하지 않을 때 억지로 결과를 도출하지 않는 것이 신뢰성 있는 AI 시스템의 원칙입니다. 매일 기록을 쌓거나 상단의 [예시 데이터 불러오기]를 통해 분석 동작을 시연해 보세요.
+            </p>
+            <div class="alert-action">
+              <button class="btn btn-sm btn-primary" onclick="navigateTab('record')">오늘 기록 작성하기</button>
+              <button class="btn btn-sm btn-outline" onclick="loadSampleDataset()">예시 데이터로 분석 체험하기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sufficient Data: Patterns & Insights Container -->
+        <div id="aiInsightsContainer" class="ai-insights-grid">
+          <!-- Dynamic Content generated by script.js -->
+        </div>
+
+        <!-- Actionable Observation Quests Card -->
+        <div class="card quests-card" id="aiQuestsSection">
+          <div class="card-header">
+            <div class="flex-between">
+              <div>
+                <h3 class="card-title">🎯 개인별 생활 습관 관찰 제안</h3>
+                <p class="card-subtitle">분석된 패턴을 토대로 일상에서 작게 실천해 볼 수 있는 관찰 목표입니다.</p>
+              </div>
+              <span class="badge badge-teal">작은 습관 프로젝트</span>
+            </div>
+          </div>
+          <div class="quests-list" id="questsListContainer">
+            <!-- Dynamic Injection -->
+          </div>
+          <div class="quest-notice">
+            💡 제시된 관찰 목표는 의학적 치료법이 아니며, 스스로 자신의 몸과 생활 패턴 사이의 연관성을 더 면밀히 알아가기 위한 탐구 활동입니다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: ABOUT & PUBLIC DATA ================= -->
+      <section id="tab-about" class="tab-panel">
+        <div class="card about-header-card">
+          <h2 class="section-title">서비스 안내 및 공공데이터 분석</h2>
+          <p class="section-subtitle">질병관리청 청소년건강행태조사 데이터와 인공지능 기초 탐구 배경 설명</p>
+        </div>
+
+        <!-- Public Data Correlation Deep Dive -->
+        <div class="card public-data-card">
+          <div class="card-header">
+            <div class="flex-between flex-wrap">
+              <div>
+                <span class="badge badge-blue">사전 수집 공공데이터</span>
+                <h3 class="card-title">질병관리청 청소년건강행태조사 (2009 ~ 2024년) 상관관계</h3>
+                <p class="card-subtitle">국가 통계 연도별 집계 자료에서 관찰된 지표 간 상관계수 분석</p>
+              </div>
+              <span class="data-source-tag">출처: 질병관리청</span>
+            </div>
+          </div>
+
+          <!-- 3 Correlation Stat Summary Cards -->
+          <div class="corr-summary-row">
+            <div class="corr-box">
+              <div class="corr-label">신체활동 실천율 × 비염 진단율</div>
+              <div class="corr-value text-blue">r = +0.622</div>
+              <div class="corr-type">강한 양의 상관관계</div>
+              <p class="corr-desc">신체활동 실천율이 높은 해에 비염 진단율도 높게 나타남</p>
+            </div>
+            <div class="corr-box">
+              <div class="corr-label">스트레스 인지율 × 비염 진단율</div>
+              <div class="corr-value text-red">r = -0.486</div>
+              <div class="corr-type">뚜렷한 음의 상관관계</div>
+              <p class="corr-desc">스트레스 인지율이 높은 해에 비염 진단율이 상대적으로 낮게 집계됨</p>
+            </div>
+            <div class="corr-box">
+              <div class="corr-label">주중 평균 수면시간 × 비염 진단율</div>
+              <div class="corr-value text-teal">r = -0.416</div>
+              <div class="corr-type">뚜렷한 음의 상관관계</div>
+              <p class="corr-desc">수면시간이 긴 해에 비염 진단율이 상대적으로 낮게 집계됨</p>
+            </div>
+          </div>
+
+          <!-- Interactive Public Data Chart -->
+          <div class="public-chart-controls">
+            <label class="input-label">비교 지표 선택:</label>
+            <div class="segmented-control" id="publicChartToggle">
+              <button class="segment-btn active" data-metric="activity" onclick="renderPublicChart('activity')">신체활동 실천율 (r = +0.622)</button>
+              <button class="segment-btn" data-metric="stress" onclick="renderPublicChart('stress')">스트레스 인지율 (r = -0.486)</button>
+              <button class="segment-btn" data-metric="sleep" onclick="renderPublicChart('sleep')">주중 수면시간 (r = -0.416)</button>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartPublicData"></canvas>
+          </div>
+
+          <!-- Ecological Fallacy Education Card -->
+          <div class="fallacy-edu-box">
+            <div class="edu-icon">🎓</div>
+            <div class="edu-body">
+              <h4 class="edu-title">인공지능과 통계 개념: 생태학적 오류 (Ecological Fallacy)</h4>
+              <p class="edu-text">
+                <strong>"연도별 집계에서 신체활동 실천율과 비염 진단율이 $r=+0.622$로 양의 상관관계를 보인다고 해서, 운동을 하면 비염이 생긴다고 말할 수 있을까요?"</strong><br>
+                절대 그렇지 않습니다. 집단(국가 연도별) 수준의 통계적 상관관계를 개인의 인과관계로 비약하여 해석하는 것을 <strong>'생태학적 오류'</strong>라고 부릅니다. 야외 운동에 따른 미세먼지나 꽃가루 노출, 건강 관심도 증가에 따른 병원 진단 빈도 증가 등 다양한 교란요인이 작용했을 수 있습니다.<br>
+                따라서 <strong>코치미(COACH ME)</strong> 서비스는 이 공공데이터를 개인의 증상을 진단·예측하는 데 사용하지 않으며, <em>"국가 통계에서도 생활 요인과 비염 지표 간에 동반 경향이 관찰되듯, 나만의 고유한 생활패턴과 증상 사이에도 관찰해 볼 만한 패턴이 존재한다"</em>는 점을 소개하는 탐색적 참고자료로 제시합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy & LocalStorage Settings Card -->
+        <div class="card settings-card">
+          <div class="card-header">
+            <h3 class="card-title">🔒 개인정보 보호 및 데이터 관리</h3>
+            <p class="card-subtitle">모든 기록은 브라우저(localStorage)에만 안전하게 저장되며 외부 서버로 전송되지 않습니다.</p>
+          </div>
+          <div class="settings-actions-grid">
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>시연용 예시 데이터 불러오기</strong>
+                <p>7일간의 현실적인 생활 습관 및 비염 증상 시연 데이터를 로드합니다.</p>
+              </div>
+              <button class="btn btn-secondary" onclick="loadSampleDataset()">예시 데이터 로드</button>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>내 기록 JSON 파일로 내보내기 (백업)</strong>
+                <p>현재 브라우저에 저장된 내 건강 기록을 파일로 안전하게 백업합니다.</p>
+              </div>
+              <button class="btn btn-outline" onclick="exportDataJson()">기록 다운로드</button>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>JSON 파일에서 기록 가져오기</strong>
+                <p>기존에 백업해 둔 기록 파일을 불러옵니다.</p>
+              </div>
+              <label class="btn btn-outline file-input-label">
+                기록 파일 불러오기
+                <input type="file" id="importFileInput" accept=".json" onchange="importDataJson(event)" style="display:none;">
+              </label>
+            </div>
+            <div class="setting-item danger-item">
+              <div class="setting-info">
+                <strong class="text-red">모든 기록 초기화</strong>
+                <p>브라우저에 저장된 모든 기록 데이터를 영구히 삭제합니다.</p>
+              </div>
+              <button class="btn btn-danger" onclick="confirmResetAll()">전체 삭제</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Info Footer Card -->
+        <div class="card project-info-card">
+          <h4 class="info-title">프로젝트 정보: 코치미(COACH ME)</h4>
+          <ul class="info-list">
+            <li><strong>주제:</strong> 개인 맞춤형 알레르기비염 생활 습관 관찰 AI 웹페이지</li>
+            <li><strong>목적:</strong> 고등학교 인공지능 기초 과목 수행평가 및 설명 가능한 규칙 기반 인공지능(XAI) 탐구</li>
+            <li><strong>기술 스택:</strong> Pure HTML5, Modern CSS3, Vanilla JavaScript (ES6+), Chart.js, Browser LocalStorage</li>
+            <li><strong>배포 환경:</strong> GitHub Pages (정적 웹 호스팅)</li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-container">
+        <p class="footer-copy">© 2026 COACH ME (코치미) · 고등학교 인공지능 기초 수행평가 프로젝트</p>
+        <p class="footer-notice">본 사이트는 의료 진단 및 치료를 대체할 수 없으며, 생활 습관 관찰을 돕는 교육용 웹페이지입니다.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Script -->
+  <script>
+/**
+ * 코치미 (COACH ME) - 웹 애플리케이션 메인 스크립트
+ * 설명 가능한 규칙 기반 인공지능(XAI) 추론 엔진, 로컬스토리지 CRUD, Chart.js 시각화
+ */
+
+// ==========================================
+// 1. 전역 상태 및 상수 정의
+// ==========================================
+const STORAGE_KEY = 'coach_me_records_v2';
+let records = [];
+let chartInstances = {};
+
+// 질병관리청 청소년건강행태조사 사전 수집 데이터 (첨부 이미지 기반 공식 데이터)
+const PUBLIC_DATA = {
+  correlations: {
+    activity: { r: 0.622, name: '신체활동 실천율', unit: '%', type: '양의 상관관계' },
+    stress: { r: -0.486, name: '스트레스 인지율', unit: '%', type: '음의 상관관계' },
+    sleep: { r: -0.416, name: '주중 평균 수면시간', unit: '시간', type: '음의 상관관계' }
+  },
+  yearly: [
+    { year: 2009, rhinitis: 24.5, stress: 43.2, sleep: 6.4, activity: null },
+    { year: 2010, rhinitis: 26.3, stress: 43.8, sleep: 6.3, activity: null },
+    { year: 2011, rhinitis: 27.9, stress: 42.0, sleep: 6.3, activity: null },
+    { year: 2012, rhinitis: 32.2, stress: 41.9, sleep: 6.2, activity: 10.9 },
+    { year: 2013, rhinitis: 33.9, stress: 41.4, sleep: 6.4, activity: 10.0 },
+    { year: 2014, rhinitis: 33.9, stress: 37.0, sleep: 6.4, activity: 10.8 },
+    { year: 2015, rhinitis: 31.7, stress: 35.4, sleep: 6.4, activity: 12.0 },
+    { year: 2016, rhinitis: 32.7, stress: 37.4, sleep: 6.3, activity: 12.6 },
+    { year: 2017, rhinitis: 33.2, stress: 37.2, sleep: 6.4, activity: 13.8 },
+    { year: 2018, rhinitis: 35.5, stress: 40.4, sleep: 6.3, activity: 14.2 },
+    { year: 2019, rhinitis: 35.8, stress: 39.9, sleep: 6.3, activity: 13.1 },
+    { year: 2020, rhinitis: 36.7, stress: 34.2, sleep: 6.2, activity: 13.8 },
+    { year: 2021, rhinitis: 35.3, stress: 38.8, sleep: 6.3, activity: 14.0 },
+    { year: 2022, rhinitis: 34.8, stress: 41.3, sleep: 6.2, activity: 14.7 },
+    { year: 2023, rhinitis: 35.4, stress: 37.3, sleep: 6.2, activity: 13.9 },
+    { year: 2024, rhinitis: 37.1, stress: 42.3, sleep: 6.2, activity: 14.6 }
+  ]
+};
+
+// 시연용 10일치 현실적 예시 데이터셋 (고교 생활 반영)
+const SAMPLE_RECORDS = [
+  {
+    id: 'sample_01',
+    date: '2026-11-13',
+    sleepHours: 5.5,
+    sleepRegularity: 'irregular',
+    stressLevel: 2,
+    physicalActivity: false,
+    indoorCleaning: false,
+    outdoorActivity: true,
+    outdoorDetail: '학원 다녀오는 길 40분 보행',
+    airQuality: 'moderate',
+    season: 'autumn',
+    clothingMaterial: 'wool',
+    nasalCongestion: 2,
+    sneezing: 2,
+    runnyNose: 2,
+    symptomAvg: 2.0,
+    isSample: true
+  },
+  {
+    id: 'sample_02',
+    date: '2026-11-14',
+    sleepHours: 5.0,
+    sleepRegularity: 'irregular',
+    stressLevel: 3,
+    physicalActivity: false,
+    indoorCleaning: false,
+    outdoorActivity: false,
+    outdoorDetail: '',
+    airQuality: 'bad',
+    season: 'autumn',
+    clothingMaterial: 'fleece',
+    nasalCongestion: 3,
+    sneezing: 2,
+    runnyNose: 2,
+    symptomAvg: 2.33,
+    isSample: true
+  },
+  {
+    id: 'sample_03',
+    date: '2026-11-15',
+    sleepHours: 8.0,
+    sleepRegularity: 'regular',
+    stressLevel: 1,
+    physicalActivity: true,
+    indoorCleaning: true,
+    outdoorActivity: true,
+    outdoorDetail: '공원 가벼운 조깅 30분',
+    airQuality: 'good',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 1,
+    sneezing: 1,
+    runnyNose: 0,
+    symptomAvg: 0.67,
+    isSample: true
+  },
+  {
+    id: 'sample_04',
+    date: '2026-11-16',
+    sleepHours: 7.5,
+    sleepRegularity: 'regular',
+    stressLevel: 1,
+    physicalActivity: true,
+    indoorCleaning: true,
+    outdoorActivity: false,
+    outdoorDetail: '',
+    airQuality: 'moderate',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 1,
+    sneezing: 0,
+    runnyNose: 1,
+    symptomAvg: 0.67,
+    isSample: true
+  },
+  {
+    id: 'sample_05',
+    date: '2026-11-17',
+    sleepHours: 6.0,
+    sleepRegularity: 'regular',
+    stressLevel: 2,
+    physicalActivity: false,
+    indoorCleaning: false,
+    outdoorActivity: true,
+    outdoorDetail: '도서관 왕복 30분',
+    airQuality: 'moderate',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 2,
+    sneezing: 1,
+    runnyNose: 1,
+    symptomAvg: 1.33,
+    isSample: true
+  },
+  {
+    id: 'sample_06',
+    date: '2026-11-18',
+    sleepHours: 5.5,
+    sleepRegularity: 'irregular',
+    stressLevel: 3,
+    physicalActivity: false,
+    indoorCleaning: false,
+    outdoorActivity: true,
+    outdoorDetail: '미세먼지 보통 날 이동',
+    airQuality: 'bad',
+    season: 'autumn',
+    clothingMaterial: 'wool',
+    nasalCongestion: 3,
+    sneezing: 3,
+    runnyNose: 2,
+    symptomAvg: 2.67,
+    isSample: true
+  },
+  {
+    id: 'sample_07',
+    date: '2026-11-19',
+    sleepHours: 7.5,
+    sleepRegularity: 'regular',
+    stressLevel: 1,
+    physicalActivity: true,
+    indoorCleaning: true,
+    outdoorActivity: false,
+    outdoorDetail: '',
+    airQuality: 'good',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 1,
+    sneezing: 1,
+    runnyNose: 0,
+    symptomAvg: 0.67,
+    isSample: true
+  },
+  {
+    id: 'sample_08',
+    date: '2026-11-20',
+    sleepHours: 7.0,
+    sleepRegularity: 'regular',
+    stressLevel: 0,
+    physicalActivity: true,
+    indoorCleaning: true,
+    outdoorActivity: true,
+    outdoorDetail: '체육시간 운동장 축구 40분',
+    airQuality: 'good',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 0,
+    sneezing: 1,
+    runnyNose: 1,
+    symptomAvg: 0.67,
+    isSample: true
+  },
+  {
+    id: 'sample_09',
+    date: '2026-11-21',
+    sleepHours: 6.5,
+    sleepRegularity: 'regular',
+    stressLevel: 1,
+    physicalActivity: false,
+    indoorCleaning: false,
+    outdoorActivity: true,
+    outdoorDetail: '시내 서점 방문',
+    airQuality: 'moderate',
+    season: 'autumn',
+    clothingMaterial: 'fleece',
+    nasalCongestion: 2,
+    sneezing: 1,
+    runnyNose: 1,
+    symptomAvg: 1.33,
+    isSample: true
+  },
+  {
+    id: 'sample_10',
+    date: '2026-11-22',
+    sleepHours: 8.0,
+    sleepRegularity: 'regular',
+    stressLevel: 0,
+    physicalActivity: true,
+    indoorCleaning: true,
+    outdoorActivity: false,
+    outdoorDetail: '',
+    airQuality: 'good',
+    season: 'autumn',
+    clothingMaterial: 'cotton',
+    nasalCongestion: 0,
+    sneezing: 0,
+    runnyNose: 0,
+    symptomAvg: 0.0,
+    isSample: true
+  }
+];
+
+// ==========================================
+// 2. 앱 초기화 (DOM Loaded)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+});
+
+function initApp() {
+  loadRecordsFromStorage();
+  setDefaultDate();
+  updateLiveAvgScore();
+  updateHomeSummary();
+  renderHistoryTable();
+  renderHistoryCharts();
+  runAIAnalysis();
+  renderPublicChart('activity');
+}
+
+// 오늘 날짜 세팅 (YYYY-MM-DD)
+function setDefaultDate() {
+  const dateInput = document.getElementById('recordDate');
+  if (dateInput && !dateInput.value) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  }
+}
+
+// 탭 네비게이션
+function navigateTab(tabId) {
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === `tab-${tabId}`);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 탭 전환 시 차트 리사이즈/재렌더링
+  if (tabId === 'history') {
+    renderHistoryCharts();
+  } else if (tabId === 'ai') {
+    runAIAnalysis();
+  } else if (tabId === 'about') {
+    const activeBtn = document.querySelector('#publicChartToggle .segment-btn.active');
+    const metric = activeBtn ? activeBtn.dataset.metric : 'activity';
+    renderPublicChart(metric);
+  } else if (tabId === 'home') {
+    updateHomeSummary();
+  }
+}
+
+// ==========================================
+// 3. 기록 입력 폼 인터랙션
+// ==========================================
+
+function updateSleepHoursLabel(val) {
+  const lbl = document.getElementById('sleepHoursVal');
+  if (lbl) lbl.textContent = `${parseFloat(val).toFixed(1)} 시간`;
+}
+
+function setSegmentVal(fieldId, val) {
+  const input = document.getElementById(fieldId);
+  if (input) input.value = val;
+
+  const container = document.getElementById(`${fieldId}Group`);
+  if (container) {
+    container.querySelectorAll('.segment-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.val === val);
+    });
+  }
+}
+
+function setLevelVal(fieldId, num) {
+  const input = document.getElementById(fieldId);
+  if (input) input.value = num;
+
+  const container = document.getElementById('stressGroup');
+  if (container) {
+    container.querySelectorAll('.level-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.val, 10) === num);
+    });
+  }
+}
+
+function setSymptomScore(fieldId, score) {
+  const input = document.getElementById(fieldId);
+  if (input) input.value = score;
+
+  // 배지 텍스트 갱신
+  const badgeMap = {
+    nasalCongestion: 'badgeCongestion',
+    sneezing: 'badgeSneezing',
+    runnyNose: 'badgeRunnyNose'
+  };
+  const descMap = ['0점 (없음)', '1점 (경미함)', '2점 (보통)', '3점 (심함)'];
+  const badge = document.getElementById(badgeMap[fieldId]);
+  if (badge) {
+    badge.textContent = descMap[score];
+  }
+
+  // 버튼 스타일 active 갱신
+  const scaleMap = {
+    nasalCongestion: 'scaleCongestion',
+    sneezing: 'scaleSneezing',
+    runnyNose: 'scaleRunnyNose'
+  };
+  const container = document.getElementById(scaleMap[fieldId]);
+  if (container) {
+    container.querySelectorAll('.symptom-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.score, 10) === score);
+    });
+  }
+
+  updateLiveAvgScore();
+}
+
+function updateLiveAvgScore() {
+  const c = parseInt(document.getElementById('nasalCongestion').value, 10) || 0;
+  const s = parseInt(document.getElementById('sneezing').value, 10) || 0;
+  const r = parseInt(document.getElementById('runnyNose').value, 10) || 0;
+
+  const avg = (c + s + r) / 3;
+  const avgValEl = document.getElementById('liveAvgScore');
+  const badgeEl = document.getElementById('liveAvgBadge');
+
+  if (avgValEl) avgValEl.textContent = avg.toFixed(2);
+
+  if (badgeEl) {
+    if (avg < 0.8) {
+      badgeEl.textContent = '편안함';
+      badgeEl.className = 'avg-status-badge badge-green';
+    } else if (avg < 1.7) {
+      badgeEl.textContent = '경미함';
+      badgeEl.className = 'avg-status-badge badge-blue';
+    } else if (avg < 2.4) {
+      badgeEl.textContent = '보통 불편';
+      badgeEl.className = 'avg-status-badge badge-yellow';
+    } else {
+      badgeEl.textContent = '심한 증상';
+      badgeEl.className = 'avg-status-badge badge-red';
+    }
+  }
+}
+
+function toggleOutdoorDetail(checked) {
+  const box = document.getElementById('outdoorDetailBox');
+  if (box) box.style.display = checked ? 'block' : 'none';
+}
+
+// 폼 제출 핸들러 (추가 및 수정)
+function handleRecordSubmit(e) {
+  e.preventDefault();
+
+  const recordDate = document.getElementById('recordDate').value;
+  if (!recordDate) {
+    showToast('기록 날짜를 선택해 주세요.', 'warning');
+    return;
+  }
+
+  const editingId = document.getElementById('editingRecordId').value;
+  
+  // 날짜 중복 검사 (단, 현재 수정 중인 건 제외)
+  const existingIdx = records.findIndex(r => r.date === recordDate && r.id !== editingId);
+  if (existingIdx !== -1) {
+    if (!confirm(`${recordDate} 날짜에 이미 저장된 기록이 있습니다. 덮어쓰시겠습니까?`)) {
+      return;
+    }
+  }
+
+  const c = parseInt(document.getElementById('nasalCongestion').value, 10) || 0;
+  const s = parseInt(document.getElementById('sneezing').value, 10) || 0;
+  const r = parseInt(document.getElementById('runnyNose').value, 10) || 0;
+  const avg = parseFloat(((c + s + r) / 3).toFixed(2));
+
+  const recordData = {
+    id: editingId || `rec_${Date.now()}`,
+    date: recordDate,
+    sleepHours: parseFloat(document.getElementById('sleepHours').value),
+    sleepRegularity: document.getElementById('sleepRegularity').value,
+    stressLevel: parseInt(document.getElementById('stressLevel').value, 10),
+    physicalActivity: document.getElementById('physicalActivity').checked,
+    indoorCleaning: document.getElementById('indoorCleaning').checked,
+    outdoorActivity: document.getElementById('outdoorActivity').checked,
+    outdoorDetail: document.getElementById('outdoorDetail').value.trim(),
+    airQuality: document.getElementById('airQuality').value,
+    season: document.getElementById('season').value,
+    clothingMaterial: document.getElementById('clothingMaterial').value,
+    nasalCongestion: c,
+    sneezing: s,
+    runnyNose: r,
+    symptomAvg: avg,
+    updatedAt: new Date().toISOString()
+  };
+
+  if (editingId) {
+    const editIdx = records.findIndex(rec => rec.id === editingId);
+    if (editIdx !== -1) {
+      records[editIdx] = recordData;
+      showToast('기록이 성공적으로 수정되었습니다.', 'success');
+    }
+    cancelEditMode();
+  } else if (existingIdx !== -1) {
+    recordData.id = records[existingIdx].id;
+    records[existingIdx] = recordData;
+    showToast(`${recordDate} 기록이 갱신되었습니다.`, 'success');
+  } else {
+    records.push(recordData);
+    showToast('오늘의 건강 기록이 저장되었습니다!', 'success');
+  }
+
+  // 날짜순 정렬
+  records.sort((a, b) => new Date(a.date) - new Date(b.date));
+  saveRecordsToStorage();
+
+  // 뷰 동기화
+  updateHomeSummary();
+  renderHistoryTable();
+  renderHistoryCharts();
+  runAIAnalysis();
+
+  // '나의 기록' 탭으로 전환 유도
+  setTimeout(() => {
+    navigateTab('history');
+  }, 350);
+}
+
+// 수정 모드 진입
+function editRecord(recordId) {
+  const rec = records.find(r => r.id === recordId);
+  if (!rec) return;
+
+  navigateTab('record');
+
+  document.getElementById('editingRecordId').value = rec.id;
+  document.getElementById('recordDate').value = rec.date;
+
+  // 수면
+  document.getElementById('sleepHours').value = rec.sleepHours;
+  updateSleepHoursLabel(rec.sleepHours);
+  setSegmentVal('sleepRegularity', rec.sleepRegularity || 'regular');
+
+  // 스트레스
+  setLevelVal('stressLevel', rec.stressLevel ?? 0);
+
+  // 체크박스
+  document.getElementById('physicalActivity').checked = !!rec.physicalActivity;
+  document.getElementById('indoorCleaning').checked = !!rec.indoorCleaning;
+  document.getElementById('outdoorActivity').checked = !!rec.outdoorActivity;
+  toggleOutdoorDetail(!!rec.outdoorActivity);
+  document.getElementById('outdoorDetail').value = rec.outdoorDetail || '';
+
+  // 드롭다운
+  document.getElementById('airQuality').value = rec.airQuality || 'moderate';
+  document.getElementById('season').value = rec.season || 'autumn';
+  document.getElementById('clothingMaterial').value = rec.clothingMaterial || 'cotton';
+
+  // 증상
+  setSymptomScore('nasalCongestion', rec.nasalCongestion ?? 0);
+  setSymptomScore('sneezing', rec.sneezing ?? 0);
+  setSymptomScore('runnyNose', rec.runnyNose ?? 0);
+
+  // 버튼 상태 변경
+  document.getElementById('btnSubmitRecord').innerHTML = '<span class="btn-icon">✏️</span> 기록 수정 완료';
+  document.getElementById('btnCancelEdit').style.display = 'block';
+
+  showToast(`${rec.date} 기록을 수정 모드로 불러왔습니다.`, 'info');
+}
+
+function cancelEditMode() {
+  document.getElementById('editingRecordId').value = '';
+  document.getElementById('recordForm').reset();
+  setDefaultDate();
+  updateSleepHoursLabel(7.0);
+  setSegmentVal('sleepRegularity', 'regular');
+  setLevelVal('stressLevel', 0);
+  setSymptomScore('nasalCongestion', 0);
+  setSymptomScore('sneezing', 0);
+  setSymptomScore('runnyNose', 0);
+  toggleOutdoorDetail(false);
+
+  document.getElementById('btnSubmitRecord').innerHTML = '<span class="btn-icon">💾</span> 기록 저장하기';
+  document.getElementById('btnCancelEdit').style.display = 'none';
+}
+
+// 개별 삭제
+function deleteRecord(recordId) {
+  const rec = records.find(r => r.id === recordId);
+  if (!rec) return;
+
+  if (confirm(`${rec.date} 기록을 삭제하시겠습니까?`)) {
+    records = records.filter(r => r.id !== recordId);
+    saveRecordsToStorage();
+    showToast('기록이 삭제되었습니다.', 'info');
+    updateHomeSummary();
+    renderHistoryTable();
+    renderHistoryCharts();
+    runAIAnalysis();
+  }
+}
+
+// 전체 초기화
+function confirmResetAll() {
+  if (confirm('저장된 모든 기록을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+    records = [];
+    saveRecordsToStorage();
+    cancelEditMode();
+    showToast('모든 기록이 초기화되었습니다.', 'danger');
+    updateHomeSummary();
+    renderHistoryTable();
+    renderHistoryCharts();
+    runAIAnalysis();
+  }
+}
+
+// 시연용 예시 데이터 불러오기
+function loadSampleDataset() {
+  records = JSON.parse(JSON.stringify(SAMPLE_RECORDS));
+  records.sort((a, b) => new Date(a.date) - new Date(b.date));
+  saveRecordsToStorage();
+  showToast('10일간의 시연용 예시 데이터가 로드되었습니다! (예시 데이터 표시 적용)', 'success');
+  updateHomeSummary();
+  renderHistoryTable();
+  renderHistoryCharts();
+  runAIAnalysis();
+  navigateTab('history');
+}
+
+// ==========================================
+// 4. 로컬 스토리지 관리 및 JSON 백업
+// ==========================================
+
+function loadRecordsFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      records = JSON.parse(raw);
+    } else {
+      records = [];
+    }
+  } catch (err) {
+    console.error('LocalStorage load error:', err);
+    records = [];
+  }
+}
+
+function saveRecordsToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  } catch (err) {
+    console.error('LocalStorage save error:', err);
+    showToast('로컬 저장소 용량이 초과되었거나 쓰기 권한이 없습니다.', 'danger');
+  }
+}
+
+function exportDataJson() {
+  if (records.length === 0) {
+    showToast('내보낼 기록 데이터가 없습니다.', 'warning');
+    return;
+  }
+  const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(records, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute('href', dataStr);
+  const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  dlAnchor.setAttribute('download', `coach_me_backup_${now}.json`);
+  document.body.appendChild(dlAnchor);
+  dlAnchor.click();
+  dlAnchor.remove();
+  showToast('기록 백업 파일이 다운로드되었습니다.', 'success');
+}
+
+function importDataJson(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        records = imported;
+        records.sort((a, b) => new Date(a.date) - new Date(b.date));
+        saveRecordsToStorage();
+        showToast(`기록 ${records.length}건을 성공적으로 불러왔습니다.`, 'success');
+        updateHomeSummary();
+        renderHistoryTable();
+        renderHistoryCharts();
+        runAIAnalysis();
+      } else {
+        showToast('유효하지 않은 백업 파일 형식입니다.', 'danger');
+      }
+    } catch (err) {
+      showToast('JSON 파일을 파싱하는 데 실패했습니다.', 'danger');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==========================================
+// 5. 홈 대시보드 & 테이블 렌더링
+// ==========================================
+
+function updateHomeSummary() {
+  const totalEl = document.getElementById('homeTotalRecords');
+  const avgEl = document.getElementById('homeRecentAvg');
+  const listEl = document.getElementById('homeRecentListContainer');
+
+  if (totalEl) totalEl.textContent = records.length;
+
+  if (records.length === 0) {
+    if (avgEl) avgEl.textContent = '-';
+    if (listEl) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <p>아직 등록된 기록이 없습니다.<br>오늘의 생활 습관과 증상을 첫 기록으로 남겨보세요!</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:0.75rem;" onclick="navigateTab('record')">첫 기록 남기기</button>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  // 최근 5개 기록 기준 평균 계산
+  const recentSlice = records.slice(-5);
+  const sumAvg = recentSlice.reduce((acc, cur) => acc + (cur.symptomAvg || 0), 0);
+  const recentAvg = (sumAvg / recentSlice.length).toFixed(2);
+  if (avgEl) avgEl.textContent = `${recentAvg}점`;
+
+  // 최근 목록 3건 표시
+  const displaySlice = [...records].reverse().slice(0, 3);
+  let html = '<div class="recent-list">';
+  displaySlice.forEach(r => {
+    const isSampleBadge = r.isSample ? '<span class="tag-pill" style="color:#d97706;border-color:#fde68a;">예시</span>' : '';
+    html += `
+      <div class="recent-item">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span class="recent-date">${r.date}</span>
+          ${isSampleBadge}
+          <div class="recent-lifestyle-tags">
+            <span class="tag-pill">수면 ${r.sleepHours}h</span>
+            <span class="tag-pill">${r.sleepRegularity === 'regular' ? '규칙수면' : '불규칙수면'}</span>
+            <span class="tag-pill">스트레스 ${r.stressLevel}</span>
+            ${r.physicalActivity ? '<span class="tag-pill">운동함</span>' : ''}
+            ${r.indoorCleaning ? '<span class="tag-pill">청소함</span>' : ''}
+          </div>
+        </div>
+        <div>
+          <span class="table-score-badge ${getScoreBadgeClass(r.symptomAvg)}">증상평균 ${r.symptomAvg.toFixed(2)}점</span>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  if (listEl) listEl.innerHTML = html;
+}
+
+function renderHistoryTable() {
+  const tbody = document.getElementById('historyTableBody');
+  const countEl = document.getElementById('recordTableCount');
+  if (countEl) countEl.textContent = `총 ${records.length}개 기록`;
+
+  if (!tbody) return;
+
+  if (records.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center;padding:2.5rem;color:#94a3b8;">
+          등록된 기록이 없습니다. 상단의 [기록하기]에서 첫 기록을 작성하거나 [예시 데이터 불러오기]를 클릭해 보세요.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // 최신 날짜가 위로 오도록 역순 정렬 렌더링
+  const sorted = [...records].reverse();
+  let html = '';
+
+  sorted.forEach(r => {
+    const isSampleBadge = r.isSample ? '<span class="tag-pill" style="color:#d97706;border-color:#fde68a;margin-left:4px;">예시</span>' : '';
+    const cleaningBadge = r.indoorCleaning ? '<span class="tag-pill" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0;">완료</span>' : '<span class="tag-pill">미실시</span>';
+    const activityBadge = r.physicalActivity ? '<span class="tag-pill" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">실천</span>' : '<span class="tag-pill">없음</span>';
+    const outdoorText = r.outdoorActivity ? (r.outdoorDetail ? `외출 (${r.outdoorDetail})` : '외출함') : '실내 머묾';
+
+    html += `
+      <tr>
+        <td><strong>${r.date}</strong>${isSampleBadge}</td>
+        <td>${r.sleepHours}h (${r.sleepRegularity === 'regular' ? '규칙' : '불규칙'})</td>
+        <td>${r.stressLevel}단계</td>
+        <td>${activityBadge}</td>
+        <td>${cleaningBadge}</td>
+        <td><small>${outdoorText} / ${r.airQuality || '보통'}</small></td>
+        <td>코:${r.nasalCongestion} / 재:${r.sneezing} / 콧:${r.runnyNose}</td>
+        <td><span class="table-score-badge ${getScoreBadgeClass(r.symptomAvg)}">${r.symptomAvg.toFixed(2)}</span></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-sm btn-outline" onclick="editRecord('${r.id}')">수정</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${r.id}')">삭제</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function getScoreBadgeClass(avg) {
+  if (avg < 0.8) return 'badge-green';
+  if (avg < 1.7) return 'badge-blue';
+  if (avg < 2.4) return 'badge-yellow';
+  return 'badge-red';
+}
+
+// ==========================================
+// 6. Chart.js 시각화 구현
+// ==========================================
+
+function renderHistoryCharts() {
+  if (records.length === 0) {
+    clearChart('chartSymptomsTrend');
+    clearChart('chartSleepTrend');
+    clearChart('chartHabitComparison');
+    return;
+  }
+
+  const sorted = [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const labels = sorted.map(r => r.date.slice(5)); // MM-DD
+
+  // 1) 날짜별 증상 변화 추이
+  const ctxSymptoms = document.getElementById('chartSymptomsTrend');
+  if (ctxSymptoms) {
+    if (chartInstances.symptoms) chartInstances.symptoms.destroy();
+
+    chartInstances.symptoms = new Chart(ctxSymptoms, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: '증상 평균',
+            data: sorted.map(r => r.symptomAvg),
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true,
+            pointRadius: 4
+          },
+          {
+            label: '코막힘',
+            data: sorted.map(r => r.nasalCongestion),
+            borderColor: '#ef4444',
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            tension: 0.2,
+            pointRadius: 3
+          },
+          {
+            label: '재채기',
+            data: sorted.map(r => r.sneezing),
+            borderColor: '#f59e0b',
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            tension: 0.2,
+            pointRadius: 3
+          },
+          {
+            label: '콧물',
+            data: sorted.map(r => r.runnyNose),
+            borderColor: '#0d9488',
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            tension: 0.2,
+            pointRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 3,
+            ticks: { stepSize: 1 }
+          }
+        },
+        plugins: {
+          legend: { position: 'top' }
+        }
+      }
+    });
+  }
+
+  // 2) 날짜별 수면 시간 변화
+  const ctxSleep = document.getElementById('chartSleepTrend');
+  if (ctxSleep) {
+    if (chartInstances.sleep) chartInstances.sleep.destroy();
+
+    chartInstances.sleep = new Chart(ctxSleep, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '수면 시간 (시간)',
+          data: sorted.map(r => r.sleepHours),
+          backgroundColor: sorted.map(r => r.sleepHours < 6 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(13, 148, 136, 0.7)'),
+          borderColor: sorted.map(r => r.sleepHours < 6 ? '#ef4444' : '#0d9488'),
+          borderWidth: 1.5,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 12,
+            ticks: { stepSize: 2 }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  // 3) 생활 습관별 증상 비교 (Habit Comparison)
+  const ctxHabit = document.getElementById('chartHabitComparison');
+  if (ctxHabit) {
+    if (chartInstances.habit) chartInstances.habit.destroy();
+
+    // 그룹별 통계 산출
+    const shortSleep = sorted.filter(r => r.sleepHours < 6);
+    const longSleep = sorted.filter(r => r.sleepHours >= 6);
+    const avgShortSleep = calcAvg(shortSleep);
+    const avgLongSleep = calcAvg(longSleep);
+
+    const lowStress = sorted.filter(r => r.stressLevel <= 1);
+    const highStress = sorted.filter(r => r.stressLevel >= 2);
+    const avgLowStress = calcAvg(lowStress);
+    const avgHighStress = calcAvg(highStress);
+
+    const cleanDone = sorted.filter(r => r.indoorCleaning);
+    const cleanNo = sorted.filter(r => !r.indoorCleaning);
+    const avgCleanDone = calcAvg(cleanDone);
+    const avgCleanNo = calcAvg(cleanNo);
+
+    const actDone = sorted.filter(r => r.physicalActivity);
+    const actNo = sorted.filter(r => !r.physicalActivity);
+    const avgActDone = calcAvg(actDone);
+    const avgActNo = calcAvg(actNo);
+
+    chartInstances.habit = new Chart(ctxHabit, {
+      type: 'bar',
+      data: {
+        labels: [
+          '수면 6시간 미만', '수면 6시간 이상',
+          '스트레스 낮음(0~1)', '스트레스 높음(2~3)',
+          '침실 청소 함', '침실 청소 안함',
+          '신체활동 실천', '신체활동 미실천'
+        ],
+        datasets: [{
+          label: '평균 증상 점수 (낮을수록 편안함)',
+          data: [
+            avgShortSleep, avgLongSleep,
+            avgLowStress, avgHighStress,
+            avgCleanDone, avgCleanNo,
+            avgActDone, avgActNo
+          ],
+          backgroundColor: [
+            '#fca5a5', '#93c5fd',
+            '#86efac', '#fca5a5',
+            '#99f6e4', '#fed7aa',
+            '#bfdbfe', '#e2e8f0'
+          ],
+          borderColor: [
+            '#ef4444', '#2563eb',
+            '#10b981', '#ef4444',
+            '#0d9488', '#f97316',
+            '#3b82f6', '#94a3b8'
+          ],
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 3,
+            ticks: { stepSize: 0.5 },
+            title: { display: true, text: '증상 점수 (0~3)' }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+}
+
+function clearChart(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const key = canvasId.replace('chart', '').toLowerCase();
+  if (chartInstances[key]) {
+    chartInstances[key].destroy();
+    chartInstances[key] = null;
+  }
+}
+
+function calcAvg(subset) {
+  if (!subset || subset.length === 0) return 0;
+  const sum = subset.reduce((acc, c) => acc + (c.symptomAvg || 0), 0);
+  return parseFloat((sum / subset.length).toFixed(2));
+}
+
+// 4) 공공데이터 인터랙티브 산점도 (Public Data Chart)
+function renderPublicChart(metricType) {
+  // 토글 버튼 상태 갱신
+  const container = document.getElementById('publicChartToggle');
+  if (container) {
+    container.querySelectorAll('.segment-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.metric === metricType);
+    });
+  }
+
+  const ctx = document.getElementById('chartPublicData');
+  if (!ctx) return;
+  if (chartInstances.public) chartInstances.public.destroy();
+
+  const cfg = PUBLIC_DATA.correlations[metricType];
+  const validData = PUBLIC_DATA.yearly.filter(d => d[metricType] !== null);
+
+  const scatterPoints = validData.map(d => ({
+    x: d[metricType],
+    y: d.rhinitis,
+    year: d.year
+  }));
+
+  // 단순 1차 회귀선 계산
+  const n = scatterPoints.length;
+  const sumX = scatterPoints.reduce((acc, p) => acc + p.x, 0);
+  const sumY = scatterPoints.reduce((acc, p) => acc + p.y, 0);
+  const sumXY = scatterPoints.reduce((acc, p) => acc + p.x * p.y, 0);
+  const sumX2 = scatterPoints.reduce((acc, p) => acc + p.x * p.x, 0);
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  const minX = Math.min(...scatterPoints.map(p => p.x));
+  const maxX = Math.max(...scatterPoints.map(p => p.x));
+
+  const trendLine = [
+    { x: minX, y: slope * minX + intercept },
+    { x: maxX, y: slope * maxX + intercept }
+  ];
+
+  chartInstances.public = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: `연도별 조사 데이터 (${cfg.name} × 비염 진단율)`,
+          data: scatterPoints,
+          backgroundColor: '#2563eb',
+          borderColor: '#1d4ed8',
+          pointRadius: 6,
+          pointHoverRadius: 8
+        },
+        {
+          type: 'line',
+          label: `경향선 (r = ${cfg.r > 0 ? '+' : ''}${cfg.r})`,
+          data: trendLine,
+          borderColor: cfg.r > 0 ? '#2563eb' : '#dc2626',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          fill: false,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: { display: true, text: `${cfg.name} (${cfg.unit})` }
+        },
+        y: {
+          title: { display: true, text: '알레르기 비염 진단 경험률 (%)' }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const raw = ctx.raw;
+              if (raw.year) {
+                return `${raw.year}년: ${cfg.name} ${raw.x}${cfg.unit}, 비염 진단율 ${raw.y}%`;
+              }
+              return `추세선 예측: ${raw.x.toFixed(1)}${cfg.unit} → ${raw.y.toFixed(1)}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ==========================================
+// 7. 설명 가능한 AI (XAI) 패턴 분석 추론 엔진
+// ==========================================
+
+function runAIAnalysis() {
+  const countBadge = document.getElementById('aiRecordCountBadge');
+  const banner = document.getElementById('aiInsufficientBanner');
+  const currentCountEl = document.getElementById('aiCurrentCountText');
+  const insightsContainer = document.getElementById('aiInsightsContainer');
+  const questsContainer = document.getElementById('questsListContainer');
+
+  const totalN = records.length;
+  if (countBadge) countBadge.textContent = `기록 데이터: ${totalN}일`;
+  if (currentCountEl) currentCountEl.textContent = `${totalN}일`;
+
+  // 데이터 부족 판정 (N < 3)
+  if (totalN < 3) {
+    if (banner) banner.style.display = 'flex';
+    if (insightsContainer) {
+      insightsContainer.innerHTML = `
+        <div class="card" style="grid-column: 1 / -1; text-align:center; padding: 2.5rem 1rem;">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">🔒</div>
+          <h4 style="font-weight:700;margin-bottom:0.35rem;">현재 기록만으로는 반복적인 패턴을 확인하기 어려워요.</h4>
+          <p style="color:#64748b;font-size:0.9rem;">
+            신뢰할 수 있는 패턴 분석을 위해 최소 3일 이상의 일상 기록이 축적되어야 합니다.<br>
+            성급한 분석 대신 신중하게 관찰 데이터를 쌓아가는 것이 책임감 있는 인공지능의 원칙입니다.
+          </p>
+        </div>
+      `;
+    }
+    if (questsContainer) {
+      questsContainer.innerHTML = `
+        <div class="quest-item">
+          <div class="quest-badge">🌱</div>
+          <div class="quest-content">
+            <h4 class="quest-title">첫걸음: 3일 연속 생활 습관 기록 퀘스트</h4>
+            <p class="quest-desc">수면 시간과 스트레스 수준, 코막힘/재채기/콧물 증상을 3일 동안 꾸준히 기록하여 내 생활 패턴의 첫 비교 기준을 만들어 보세요.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  // N >= 3: 규칙 기반 추론 수행
+  if (banner) banner.style.display = 'none';
+
+  const insights = [];
+  const quests = [];
+
+  // 1) 수면 시간 규칙 추론 (6시간 미만 vs 6시간 이상)
+  const shortSleep = records.filter(r => r.sleepHours < 6);
+  const longSleep = records.filter(r => r.sleepHours >= 6);
+  if (shortSleep.length > 0 && longSleep.length > 0) {
+    const avgShort = calcAvg(shortSleep);
+    const avgLong = calcAvg(longSleep);
+    const diff = avgShort - avgLong;
+
+    if (diff >= 0.4) {
+      insights.push({
+        icon: '🌙',
+        bg: 'bg-blue',
+        title: '수면 시간과 증상 점수의 동반 경향',
+        sentence: `최근 기록에서는 <strong>수면 시간이 짧았던 날(6시간 미만)에 증상 점수가 상대적으로 높게 나타났어요.</strong> 앞으로 수면 시간과 다음 날 아침 증상의 변화를 조금 더 관찰해 보세요.`,
+        evidence: `분석 근거: 수면 6시간 미만 ${shortSleep.length}일(평균 ${avgShort}점) vs 6시간 이상 ${longSleep.length}일(평균 ${avgLong}점) (차이: +${diff.toFixed(2)}점)`
+      });
+      quests.push({
+        badge: '🛌',
+        title: '수면 골든타임 관찰 퀘스트',
+        desc: '이번 주는 평소보다 30분 일찍 잠자리에 들고, 다음 날 기상 직후 코막힘 정도(0~3)가 어떻게 달라지는지 3일간 비교 기록해 보세요.'
+      });
+    } else if (diff <= -0.4) {
+      insights.push({
+        icon: '🌙',
+        bg: 'bg-blue',
+        title: '수면 시간과 증상 점수 관찰',
+        sentence: `최근 기록에서는 수면 시간이 길었던 날에 증상 점수가 다소 높게 관찰되었어요. 긴 수면 시간 자체보다 침실 내 침구 환경이나 수면의 질적 요인을 함께 살펴볼 필요가 있습니다.`,
+        evidence: `분석 근거: 수면 6시간 이상 ${longSleep.length}일(평균 ${avgLong}점) vs 6시간 미만 ${shortSleep.length}일(평균 ${avgShort}점)`
+      });
+    } else {
+      insights.push({
+        icon: '🌙',
+        bg: 'bg-blue',
+        title: '수면 시간별 증상 차이',
+        sentence: `수면 시간이 짧았던 날과 길었던 날의 <strong>증상 점수 차이가 뚜렷하지 않아요.</strong> 기록을 조금 더 쌓아 비교해 보세요.`,
+        evidence: `분석 근거: 6시간 미만(평균 ${avgShort}점) vs 6시간 이상(평균 ${avgLong}점) (차이 미미: ${Math.abs(diff).toFixed(2)}점)`
+      });
+    }
+  }
+
+  // 2) 스트레스 수준 규칙 추론 (낮음 0~1 vs 높음 2~3)
+  const lowStress = records.filter(r => r.stressLevel <= 1);
+  const highStress = records.filter(r => r.stressLevel >= 2);
+  if (lowStress.length > 0 && highStress.length > 0) {
+    const avgLow = calcAvg(lowStress);
+    const avgHigh = calcAvg(highStress);
+    const diff = avgHigh - avgLow;
+
+    if (diff >= 0.4) {
+      insights.push({
+        icon: '🧘',
+        bg: 'bg-indigo',
+        title: '스트레스 인지와 비염 증상 패턴',
+        sentence: `스트레스를 많이 느꼈다고 응답한 날에 <strong>증상 평균 점수가 상대적으로 높게 집계되었어요.</strong> 신체 피로와 심리적 긴장감이 비염 체감도에 영향을 미치는지 살펴보세요.`,
+        evidence: `분석 근거: 스트레스 높음 ${highStress.length}일(평균 ${avgHigh}점) vs 낮음 ${lowStress.length}일(평균 ${avgLow}점) (차이: +${diff.toFixed(2)}점)`
+      });
+      quests.push({
+        badge: '🌿',
+        title: '마음 이완 & 증상 메모 퀘스트',
+        desc: '학업이나 시험으로 스트레스를 많이 받은 날, 10분간 심호흡 또는 따뜻한 차를 마신 후 코막힘 느낌을 메모란에 기록해 보세요.'
+      });
+    } else {
+      insights.push({
+        icon: '🧘',
+        bg: 'bg-indigo',
+        title: '스트레스 수준과 증상',
+        sentence: `스트레스 수준에 따른 증상 점수 차이가 아직은 뚜렷하게 관찰되지 않았습니다. 지속적으로 기록을 축적해 보세요.`,
+        evidence: `분석 근거: 스트레스 낮음 ${lowStress.length}일(평균 ${avgLow}점) vs 높음 ${highStress.length}일(평균 ${avgHigh}점)`
+      });
+    }
+  }
+
+  // 3) 침실 및 실내 청소 습관 규칙 추론
+  const cleanDone = records.filter(r => r.indoorCleaning);
+  const cleanNo = records.filter(r => !r.indoorCleaning);
+  if (cleanDone.length > 0 && cleanNo.length > 0) {
+    const avgClean = calcAvg(cleanDone);
+    const avgNoClean = calcAvg(cleanNo);
+    const diff = avgNoClean - avgClean;
+
+    if (diff >= 0.4) {
+      insights.push({
+        icon: '🧹',
+        bg: 'bg-teal',
+        title: '실내·침실 청소와 증상 완화 경향',
+        sentence: `<strong>침실 청소와 침구류 관리를 한 날에 비염 증상 점수가 상대적으로 낮게 나타났어요.</strong> 집먼지진드기 등 실내 환경 요인과의 연관성을 지속적으로 관찰해 볼 수 있습니다.`,
+        evidence: `분석 근거: 청소한 날 ${cleanDone.length}일(평균 ${avgClean}점) vs 안 한 날 ${cleanNo.length}일(평균 ${avgNoClean}점) (차이: -${diff.toFixed(2)}점)`
+      });
+      quests.push({
+        badge: '🛏️',
+        title: '침구 털기 & 환기 실천 퀘스트',
+        desc: '주말이나 이틀에 한 번 침실 베개 커버를 털거나 교체하고, 당일 밤 수면 전 코막힘 점수의 차이를 관찰해 보세요.'
+      });
+    }
+  }
+
+  // 4) 신체활동(운동) 여부 추론
+  const actDone = records.filter(r => r.physicalActivity);
+  const actNo = records.filter(r => !r.physicalActivity);
+  if (actDone.length > 0 && actNo.length > 0) {
+    const avgAct = calcAvg(actDone);
+    const avgNoAct = calcAvg(actNo);
+    const diff = Math.abs(avgAct - avgNoAct);
+
+    if (diff < 0.4) {
+      insights.push({
+        icon: '🏃',
+        bg: 'bg-blue',
+        title: '신체활동(운동) 여부와 증상',
+        sentence: `<strong>신체활동을 한 날과 하지 않은 날의 증상 점수 차이가 뚜렷하지 않아요.</strong> 실내 운동과 실외 운동의 환경 차이를 함께 기록하며 비교해 보세요.`,
+        evidence: `분석 근거: 신체활동 ${actDone.length}일(평균 ${avgAct}점) vs 미활동 ${actNo.length}일(평균 ${avgNoAct}점) (차이: ${diff.toFixed(2)}점)`
+      });
+    } else {
+      const higherGroup = avgAct > avgNoAct ? '운동한 날' : '운동하지 않은 날';
+      insights.push({
+        icon: '🏃',
+        bg: 'bg-blue',
+        title: '신체활동 환경과 증상 비교',
+        sentence: `신체활동을 한 날과 그렇지 않은 날 사이에 증상 점수 차이가 관찰되었어요. (${higherGroup}에 다소 높음) 운동 자체보다는 야외 대기질이나 차가운 공기 흡입 여부를 추가로 관찰해 보세요.`,
+        evidence: `분석 근거: 활동군(평균 ${avgAct}점) vs 비활동군(평균 ${avgNoAct}점)`
+      });
+    }
+  }
+
+  // 기본 퀘스트 보충
+  if (quests.length === 0) {
+    quests.push({
+      badge: '📝',
+      title: '환경 요인 메모 관찰 퀘스트',
+      desc: '외출한 날과 머문 날의 코막힘 차이를 기록하고, 입은 옷의 재질(니트/면)에 따라 재채기 횟수가 달라지는지 유심히 관찰해 보세요.'
+    });
+  }
+
+  // 인사이트 렌더링
+  let html = '';
+  insights.forEach(item => {
+    html += `
+      <div class="ai-card">
+        <div>
+          <div class="ai-card-header">
+            <div class="ai-card-icon ${item.bg}">${item.icon}</div>
+            <h4 class="ai-card-title">${item.title}</h4>
+          </div>
+          <p class="ai-card-body">${item.sentence}</p>
+        </div>
+        <div class="ai-card-evidence">${item.evidence}</div>
+      </div>
+    `;
+  });
+  if (insightsContainer) insightsContainer.innerHTML = html;
+
+  // 퀘스트 렌더링
+  let qHtml = '';
+  quests.forEach(q => {
+    qHtml += `
+      <div class="quest-item">
+        <div class="quest-badge">${q.badge}</div>
+        <div class="quest-content">
+          <h4 class="quest-title">${q.title}</h4>
+          <p class="quest-desc">${q.desc}</p>
+        </div>
+      </div>
+    `;
+  });
+  if (questsContainer) questsContainer.innerHTML = qHtml;
+}
+
+// ==========================================
+// 8. 토스트 알림 유틸리티
+// ==========================================
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : type === 'danger' ? '⛔' : 'ℹ️';
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3200);
+}
+
+</script>
+</body>
+</html>
